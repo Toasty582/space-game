@@ -22,6 +22,5 @@ public class Manager : MonoBehaviour
 
     public GameObject star;
     public GameObject[] planets;
-    public int[] planetDistances;
 
 }
