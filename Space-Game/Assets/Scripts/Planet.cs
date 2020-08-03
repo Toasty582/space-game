@@ -6,12 +6,10 @@ using static Manager;
 
 public class Planet : MonoBehaviour{
     // Fields
-    private float orbitCircumference;
-    private float distance;
-    private float orbitalPeriod;
-    private float orbitalSpeed;
-    
-    private int id;
+    private float orbitCircumference = 0f;
+    private float distance = 0f;
+    private float orbitalPeriod = 0f;
+    private float orbitalSpeed = Mathf.Infinity;
 
 
     // Properties
@@ -24,30 +22,16 @@ public class Planet : MonoBehaviour{
             distance = value;
             orbitalPeriod = Mathf.Sqrt(Mathf.Pow(distance, 3));
             orbitCircumference = Mathf.PI * Mathf.Pow(distance, 2);
-            orbitalSpeed = orbitCircumference / orbitalPeriod;
+            if (orbitalPeriod != 0f) {
+                orbitalSpeed = orbitCircumference / orbitalPeriod;
+            } else {
+                orbitalSpeed = Mathf.Infinity;
+            }
         }
     }
 
     public float OrbitalPeriod { get; }
     public float OrbitalSpeed { get; }
    
-    public int Id { get; private set; }
-
-    public GameObject PlanetInstance { get; private set; }
-
-    // Methods
-    public void ConfigurePlanet(float planetDistance, int planetID) {
-        float planetInitialPosition = Random.Range(0f, 359f);
-
-        PlanetInstance = instance.planets[planetID];
-        PlanetInstance.transform.Rotate(new Vector3(0, planetInitialPosition, 0));
-        PlanetInstance.transform.Translate(planetDistance, 0, planetDistance);
-
-        Distance = planetDistance;
-        Id = planetID;
-    }
-
-    void Awake() {
-        
-    }
+    public int Id { get; set; }
 }

@@ -4,17 +4,18 @@ using UnityEngine;
 
 public class Manager : MonoBehaviour
 {
-    public static Manager instance = null;
+    // Singleton Instantiation
+    public static Manager manager = null;
 
     void Awake() {
-        if (instance == null) {
-            instance = this;
-        } else if (instance != this) {
+        if (manager == null) {
+            manager = this;
+        } else if (manager != this) {
             Destroy(gameObject);
         }
     }
 
-
+    // Variables that may need to be accessed from multiple places
     public GameObject[] starPrefabs;
     public GameObject[] planetPrefabs;
 
