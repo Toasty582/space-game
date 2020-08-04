@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// ----------------------------------------- ONE UNITY UNIT = 50 * 10^6 km = 1/3 AU --------------------------------------------------------------------------------
+
+
 public class Manager : MonoBehaviour
 {
     // Singleton Instantiation
@@ -15,13 +18,13 @@ public class Manager : MonoBehaviour
         }
     }
 
-    // Variables that may need to be accessed from multiple places
+    // Variables that may need to be accessed from multiple places -- Can be referenced with manager.variableName
     public GameObject[] starPrefabs;
     public GameObject[] planetPrefabs;
 
-    public Transform starPosition;
-
     public GameObject star;
     public GameObject[] planets;
+
+    public int timestep = 2628000; // Number of in-game seconds that pass every real life second
 
 }

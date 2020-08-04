@@ -4,6 +4,10 @@ using UnityEngine;
 using static Planet;
 using static Manager;
 
+
+// ----------------------------------------- ONE UNITY UNIT = 50 * 10^6 km = 1/3 AU --------------------------------------------------------------------------------
+
+
 public class RandomSystem : MonoBehaviour
 {
     // Update is called once per frame
@@ -27,21 +31,21 @@ public class RandomSystem : MonoBehaviour
 
         // Randomly pick a star from the prefabs
         int randomStarIndex = Random.Range(0, manager.starPrefabs.Length);
-        manager.star = Instantiate(manager.starPrefabs[randomStarIndex], manager.starPosition);
+        manager.star = Instantiate(manager.starPrefabs[randomStarIndex], Vector3.zero, Quaternion.Euler(0, 0, 0));
 
         // Log the star's creation
         Debug.Log("Star Instantiated");
 
         // Generate the planets
-        for(int i = 0; i < planetQuantity; i++) {
-            CreatePlanet(i);
+        for(int id = 0; id < planetQuantity; id++) {
+            CreatePlanet(id);
         }
     }
 
     void CreatePlanet(int planetID) {
         // Pick the type of planet and create it
         int randomPlanetType = Random.Range(0, manager.planetPrefabs.Length);
-        manager.planets[planetID] = Instantiate(manager.planetPrefabs[randomPlanetType], manager.starPosition);
+        manager.planets[planetID] = Instantiate(manager.planetPrefabs[randomPlanetType], Vector3.zero, Quaternion.Euler(0, 0, 0));
 
         // Assign the planet ID
         manager.planets[planetID].GetComponent<Planet>().Id = planetID;
@@ -61,7 +65,8 @@ public class RandomSystem : MonoBehaviour
         // Move the planet to a randomly generated orbit and a randomly generated point on that orbit
         float planetInitialPosition = Random.Range(0f, 359f);
         manager.planets[planetID].transform.Rotate(new Vector3(0, planetInitialPosition, 0));
-        manager.planets[planetID].transform.Translate(manager.planets[planetID].GetComponent<Planet>().Distance, 0, manager.planets[planetID].GetComponent<Planet>().Distance);
+        float distance = manager.planets[planetID].GetComponent<Planet>().Distance;
+        manager.planets[planetID].transform.Translate(distance, 0, distance);
 
         // Log the planet's creation
         Debug.Log("Planet " + planetID + " Instantiated");

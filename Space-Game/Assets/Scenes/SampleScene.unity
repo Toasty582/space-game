@@ -183,9 +183,9 @@ MonoBehaviour:
   - {fileID: 647655421733073274, guid: 5e60056e0293f0f4487b39636dc2177e, type: 3}
   planetPrefabs:
   - {fileID: 7258334783115898913, guid: 69212f547fe7ab342b7fb65cd839aa80, type: 3}
-  starPosition: {fileID: 312531828}
   star: {fileID: 0}
   planets: []
+  timestep: 2628000
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
