@@ -16,6 +16,8 @@ public class Planet : MonoBehaviour{
     private float orbitalPeriodSeconds = 0f; // Orbital period in seconds
     private float orbitalSpeed = Mathf.Infinity; // Orbital Speed in Unity units per year
 
+    LineRenderer lineRenderer;
+
 
     // Properties
     public float Circumference { get; }
@@ -44,11 +46,36 @@ public class Planet : MonoBehaviour{
     public int Id { get; set; }
 
     // Methods
+    void Awake() {
+        lineRenderer = gameObject.GetComponent<LineRenderer>();
+    }
+
     void Update() {
         Orbit();
     }
 
     void Orbit() {
         transform.RotateAround(manager.star.transform.position, Vector3.up, (360 / orbitalPeriodSeconds) * manager.timestep);
+        Circle(Distance, manager.star.transform.position);
+    }
+
+    void Circle(float radius, Vector3 offset, float theta_scale = 0.01f) {
+        float sizeValue = (2.0f * Mathf.PI) / theta_scale;
+        int size = (int)sizeValue;
+        size++;
+        lineRenderer.startWidth = 0.1f;
+        lineRenderer.endWidth = 0.1f;
+        lineRenderer.positionCount = size;
+
+        Vector3 pos;
+        float theta = 0f;
+        for (int i = 0; i < size; i++) {
+            theta += (2.0f * Mathf.PI * theta_scale);
+            float x = radius * Mathf.Cos(theta);
+            float z = radius * Mathf.Sin(theta);
+            pos = new Vector3(x, 0, z);
+            pos += offset;
+            lineRenderer.SetPosition(i, pos);
+        }
     }
 }

@@ -66,7 +66,7 @@ public class RandomSystem : MonoBehaviour
         float planetInitialPosition = Random.Range(0f, 359f);
         manager.planets[planetID].transform.Rotate(new Vector3(0, planetInitialPosition, 0));
         float distance = manager.planets[planetID].GetComponent<Planet>().Distance;
-        manager.planets[planetID].transform.Translate(distance, 0, distance);
+        manager.planets[planetID].transform.Translate(transform.forward * distance);
 
         // Log the planet's creation
         Debug.Log("Planet " + planetID + " Instantiated");
@@ -82,8 +82,8 @@ public class RandomSystem : MonoBehaviour
                 // Check if the planet being used for comparison is the same planet as the one being checked
                 if (checkPlanet.GetComponent<Planet>().Id != planetID) {
 
-                    // If not, check if the planets' orbits are within 0.5 units of one another
-                    if (checkPlanet.GetComponent<Planet>().Distance < (manager.planets[planetID].GetComponent<Planet>().Distance + 0.5f) && checkPlanet.GetComponent<Planet>().Distance > (manager.planets[planetID].GetComponent<Planet>().Distance - 0.5f)) {
+                    // If not, check if the planets' orbits are within 1 unit of one another
+                    if (checkPlanet.GetComponent<Planet>().Distance < (manager.planets[planetID].GetComponent<Planet>().Distance + 1f) && checkPlanet.GetComponent<Planet>().Distance > (manager.planets[planetID].GetComponent<Planet>().Distance - 1f)) {
 
                         // If so, return false
                         return false;
