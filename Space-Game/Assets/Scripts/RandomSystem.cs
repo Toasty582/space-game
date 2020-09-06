@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Planet;
 using static Manager;
+using static EnvironmentData;
 
 
 // ----------------------------------------- ONE UNITY UNIT = 50 * 10^6 km = 1/3 AU --------------------------------------------------------------------------------
@@ -10,88 +11,122 @@ using static Manager;
 
 public class RandomSystem : MonoBehaviour
 {
-    // Update is called once per frame
-    void Update()
+    private void Start() {
+        manager.environment = new EnvironmentData();
+        for (int i = 0; i < 500; i++) {
+            NewSystem(i);
+        }
+        LoadSystem(0);
+    }
+
+    private void Update()
     {
-        if(Input.GetMouseButtonDown(0)) {
-            // Generate a star system with 1-8 planets
-            GenerateNewSystem(Random.Range(1, 8));
-        }
+
     }
 
-    void GenerateNewSystem(int planetQuantity) {
+    void LoadSystem(int systemID) {
+        int fullSystemID = systemID * 50;
+
         // Destroy the existing star system
-        Destroy(manager.star);
-        foreach(GameObject planet in manager.planets) {
-            Destroy(planet);
+        foreach(GameObject n in manager.activeObjects) {
+            Destroy(n);
         }
 
-        // Recreate the planets array
-        manager.planets = new GameObject[planetQuantity];
+        // Recreate the activeObjects array
+        manager.activeObjects = new GameObject[50];
 
-        // Randomly pick a star from the prefabs
-        int randomStarIndex = Random.Range(0, manager.starPrefabs.Length);
-        manager.star = Instantiate(manager.starPrefabs[randomStarIndex], Vector3.zero, Quaternion.Euler(0, 0, 0));
+        // Iterate through every object in the system
+        for (int i = fullSystemID; i < fullSystemID + 50; i++) {
+            int partialID = i - fullSystemID;
+            // Check if the object exists
+            if (manager.environment.objects[i] != null) {
+                // Check what type of object it is
+                switch ((string)manager.environment.objects[i][0]) {
+                    case "SYSTEM":
+                        // If it is a system, instantiate that system item
+                        manager.activeObjects[0] = Instantiate(manager.systemPrefabs[0], Vector3.zero, Quaternion.Euler(0, 0, 0));
+                        // Assign the system ID
+                        manager.activeObjects[partialID].GetComponent<SystemObject>().ID = i;
+                        // Assign the planet count
+                        manager.activeObjects[partialID].GetComponent<SystemObject>().PlanetCount = (int)manager.environment.objects[i][1];
+                        // Log the system's creation
+                        Debug.Log("System Insantiated");
+                        break;
 
-        // Log the star's creation
-        Debug.Log("Star Instantiated");
+                    case "STAR":
+                        // If it is a star, instantiate that star
+                        manager.activeObjects[partialID] = Instantiate(manager.starPrefabs[(int)manager.environment.objects[i][1]], Vector3.zero, Quaternion.Euler(0, 0, 0), manager.activeObjects[0].transform);
+                        manager.activeStar = manager.activeObjects[partialID];
+                        // Log the star's creation
+                        Debug.Log("Star Instantiated");
+                        break;
 
-        // Generate the planets
-        for(int id = 0; id < planetQuantity; id++) {
-            CreatePlanet(id);
-        }
-    }
+                    case "PLANET":
+                        // If it is a planet, instantiate that planet
+                        manager.activeObjects[partialID] = Instantiate(manager.planetPrefabs[(int)manager.environment.objects[i][1]], Vector3.zero, Quaternion.Euler(0, 0, 0), manager.activeObjects[0].transform);
+                        // Assign the planet ID
+                        manager.activeObjects[partialID].GetComponent<Planet>().Id = i;
+                        // Assign the planet distance
+                        manager.activeObjects[partialID].GetComponent<Planet>().Distance = (float)manager.environment.objects[i][2];
+                        // Move the planet to its place
+                        manager.activeObjects[partialID].transform.Rotate(new Vector3(0, (float)manager.environment.objects[i][3], 0));
+                        manager.activeObjects[partialID].transform.Translate(transform.forward * (float)manager.environment.objects[i][2]);
+                        // Log the planet's creation
+                        Debug.Log("Planet " + (partialID) + " Insantiated");
+                        break;
 
-    void CreatePlanet(int planetID) {
-        // Pick the type of planet and create it
-        int randomPlanetType = Random.Range(0, manager.planetPrefabs.Length);
-        manager.planets[planetID] = Instantiate(manager.planetPrefabs[randomPlanetType], Vector3.zero, Quaternion.Euler(0, 0, 0));
-
-        // Assign the planet ID
-        manager.planets[planetID].GetComponent<Planet>().Id = planetID;
-
-        // Loop until the orbit is confirmed as valid
-        bool validOrbit = false;
-        while(!validOrbit) {
-            // Generate a new potential orbit distance and assign it to the planet
-            float planetDistance = Random.Range(5f, 50f);
-            manager.planets[planetID].GetComponent<Planet>().Distance = planetDistance;
-
-            // Check the orbit for conflicts with other orbits
-            validOrbit = OrbitConflictCheck(planetID);
-        }
-        
-
-        // Move the planet to a randomly generated orbit and a randomly generated point on that orbit
-        float planetInitialPosition = Random.Range(0f, 359f);
-        manager.planets[planetID].transform.Rotate(new Vector3(0, planetInitialPosition, 0));
-        float distance = manager.planets[planetID].GetComponent<Planet>().Distance;
-        manager.planets[planetID].transform.Translate(transform.forward * distance);
-
-        // Log the planet's creation
-        Debug.Log("Planet " + planetID + " Instantiated");
-    }
-
-    bool OrbitConflictCheck(int planetID) {
-        // Iterate through all the planets in the planet array
-        foreach (GameObject checkPlanet in manager.planets) {
-
-            // Check to make sure there are other planets in the array
-            if (checkPlanet) {
-
-                // Check if the planet being used for comparison is the same planet as the one being checked
-                if (checkPlanet.GetComponent<Planet>().Id != planetID) {
-
-                    // If not, check if the planets' orbits are within 1 unit of one another
-                    if (checkPlanet.GetComponent<Planet>().Distance < (manager.planets[planetID].GetComponent<Planet>().Distance + 1f) && checkPlanet.GetComponent<Planet>().Distance > (manager.planets[planetID].GetComponent<Planet>().Distance - 1f)) {
-
-                        // If so, return false
-                        return false;
-                    }
+                    default:
+                        break;
                 }
             }
         }
-        // If the planet passed through all the checks without being flagged as too close, return true
-        return true;
+    }
+
+    void NewSystem(int systemID) {
+        // Calculate the full ID from the system ID
+        int fullID = systemID * 50;
+        // Calculate a random planet amount
+        int planetCount = Random.Range(1, 8);
+        // Set the full ID to a system object
+        manager.environment.objects[fullID] = new object[] { "SYSTEM", planetCount };
+
+        // Increment the full ID
+        fullID++;
+        // Choose a random star prefab
+        int randomStarIndex = Random.Range(0, manager.starPrefabs.Length);
+        // Set the full ID to a star object
+        manager.environment.objects[fullID] = new object[] { "STAR", randomStarIndex };
+
+        // Iterate through all the planets
+        for (int i = 0; i < (int)manager.environment.objects[systemID * 50][1]; i++) {
+            // Increment the full ID
+            fullID++;
+            // Choose a random planet prefab
+            int randomPlanetIndex = Random.Range(0, manager.planetPrefabs.Length);
+            // Set the full ID to a planet object
+            manager.environment.objects[fullID] = new object[] { "PLANET", randomPlanetIndex, 0, 0f };
+            // Loop until the orbit is confirmed as valid
+            bool validDistance = false;
+            while (!validDistance) {
+                // Require proof that the orbit is invalid
+                validDistance = true;
+                // Generate a new potential orbit distance and assign it to the planet
+                float distanceCandidate = Random.Range(5f, 50f);
+                manager.environment.objects[fullID][2] = distanceCandidate;
+                // Iterate through every other created object in the system
+                for (i = systemID * 50; i < fullID; i++) {
+                    // Check if the object is a planet
+                    if ((string)manager.environment.objects[i][0] == "PLANET") {
+                        // If so, check if its orbit is within 1 unit of the potential orbit
+                        if(distanceCandidate < ((float)manager.environment.objects[i][2] + 1f) && distanceCandidate > ((float)manager.environment.objects[i][2] - 1f)) {
+                            // If so, the potential orbit is declared invalid
+                            validDistance = false;
+                        }
+                    }
+                }
+            }
+            // Set a random orbit angle
+            manager.environment.objects[fullID][3] = Random.Range(0f, 359f);
+        }
     }
 }

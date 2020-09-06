@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static RandomSystem;
 using static Manager;
+using static EnvironmentData;
 
 
 // ----------------------------------------- ONE UNITY UNIT = 50 * 10^6 km = 1/3 AU --------------------------------------------------------------------------------
@@ -46,17 +47,17 @@ public class Planet : MonoBehaviour{
     public int Id { get; set; }
 
     // Methods
-    void Awake() {
+    private void Awake() {
         lineRenderer = gameObject.GetComponent<LineRenderer>();
     }
 
-    void Update() {
+    private void Update() {
         Orbit();
     }
 
     void Orbit() {
-        transform.RotateAround(manager.star.transform.position, Vector3.up, (360 / orbitalPeriodSeconds) * manager.timestep);
-        Circle(Distance, manager.star.transform.position);
+        transform.RotateAround(manager.activeStar.transform.position, Vector3.up, (360 / orbitalPeriodSeconds) * manager.timestep);
+        Circle(Distance, manager.activeStar.transform.position);
     }
 
     void Circle(float radius, Vector3 offset, float theta_scale = 0.01f) {

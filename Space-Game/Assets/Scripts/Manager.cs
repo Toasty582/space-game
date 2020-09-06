@@ -10,7 +10,7 @@ public class Manager : MonoBehaviour
     // Singleton Instantiation
     public static Manager manager = null;
 
-    void Awake() {
+    private void Awake() {
         if (manager == null) {
             manager = this;
         } else if (manager != this) {
@@ -21,9 +21,12 @@ public class Manager : MonoBehaviour
     // Variables that may need to be accessed from multiple places -- Can be referenced with manager.variableName
     public GameObject[] starPrefabs;
     public GameObject[] planetPrefabs;
+    public GameObject[] systemPrefabs;
 
-    public GameObject star;
-    public GameObject[] planets;
+    public GameObject activeStar;
+    public GameObject[] activeObjects;
+
+    public EnvironmentData environment;
 
     public int timestep = 2628000; // Number of in-game seconds that pass every real life second
 
