@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using static Planet;
 using static Manager;
 using static EnvironmentData;
@@ -11,6 +12,7 @@ using static EnvironmentData;
 
 public class RandomSystem : MonoBehaviour
 {
+    public TMP_InputField systemIdInput;
     private void Start() {
         manager.environment = new EnvironmentData();
         for (int i = 0; i < 500; i++) {
@@ -19,12 +21,12 @@ public class RandomSystem : MonoBehaviour
         LoadSystem(0);
     }
 
-    private void Update()
-    {
-
+    public void ManualLoadSystem() {
+        LoadSystem(System.Convert.ToInt32(systemIdInput.text));
+        Debug.Log("Loaded System " + systemIdInput.text);
     }
 
-    void LoadSystem(int systemID) {
+    public void LoadSystem(int systemID) {
         int fullSystemID = systemID * 50;
 
         // Destroy the existing star system
@@ -98,7 +100,7 @@ public class RandomSystem : MonoBehaviour
         manager.environment.objects[fullID] = new object[] { "STAR", randomStarIndex };
 
         // Iterate through all the planets
-        for (int i = 0; i < (int)manager.environment.objects[systemID * 50][1]; i++) {
+        for (int i = 0; i < planetCount; i++) {
             // Increment the full ID
             fullID++;
             // Choose a random planet prefab
