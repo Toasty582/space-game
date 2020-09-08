@@ -18,7 +18,6 @@ public class RandomSystem : MonoBehaviour
         for (int i = 0; i < 500; i++) {
             NewSystem(i);
         }
-        LoadSystem(0);
     }
 
     public void ManualLoadSystem() {
@@ -74,7 +73,7 @@ public class RandomSystem : MonoBehaviour
                         manager.activeObjects[partialID].transform.Rotate(new Vector3(0, (float)manager.environment.objects[i][3], 0));
                         manager.activeObjects[partialID].transform.Translate(transform.forward * (float)manager.environment.objects[i][2]);
                         // Log the planet's creation
-                        Debug.Log("Planet " + (partialID) + " Insantiated");
+                        Debug.Log("Planet " + (partialID) + " Instantiated");
                         break;
 
                     default:
@@ -106,7 +105,7 @@ public class RandomSystem : MonoBehaviour
             // Choose a random planet prefab
             int randomPlanetIndex = Random.Range(0, manager.planetPrefabs.Length);
             // Set the full ID to a planet object
-            manager.environment.objects[fullID] = new object[] { "PLANET", randomPlanetIndex, 0, 0f };
+            manager.environment.objects[fullID] = new object[] { "PLANET", randomPlanetIndex, 0f, 0f };
             // Loop until the orbit is confirmed as valid
             bool validDistance = false;
             while (!validDistance) {
@@ -116,11 +115,11 @@ public class RandomSystem : MonoBehaviour
                 float distanceCandidate = Random.Range(5f, 50f);
                 manager.environment.objects[fullID][2] = distanceCandidate;
                 // Iterate through every other created object in the system
-                for (i = systemID * 50; i < fullID; i++) {
+                for (int n = systemID * 50; n < fullID; n++) {
                     // Check if the object is a planet
-                    if ((string)manager.environment.objects[i][0] == "PLANET") {
+                    if ((string)manager.environment.objects[n][0] == "PLANET") {
                         // If so, check if its orbit is within 1 unit of the potential orbit
-                        if(distanceCandidate < ((float)manager.environment.objects[i][2] + 1f) && distanceCandidate > ((float)manager.environment.objects[i][2] - 1f)) {
+                        if(distanceCandidate < ((float)manager.environment.objects[n][2] + 1f) && distanceCandidate > ((float)manager.environment.objects[n][2] - 1f)) {
                             // If so, the potential orbit is declared invalid
                             validDistance = false;
                         }
