@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using static EnvironmentData;
+﻿using UnityEngine;
 
 public class SystemObject : MonoBehaviour
 {

@@ -1,20 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
-using static Planet;
 using static Manager;
-using static EnvironmentData;
-
-
-// ----------------------------------------- ONE UNITY UNIT = 50 * 10^6 km = 1/3 AU --------------------------------------------------------------------------------
+using static SaveTranslator;
+using SaveData;
 
 
 public class RandomSystem : MonoBehaviour
 {
     public TMP_InputField systemIdInput;
     private void Start() {
-        manager.environment = new EnvironmentData();
+        manager.env = new EnvironmentData();
         for (int i = 0; i < 500; i++) {
             NewSystem(i);
         }
@@ -40,23 +35,23 @@ public class RandomSystem : MonoBehaviour
         for (int i = fullSystemID; i < fullSystemID + 50; i++) {
             int partialID = i - fullSystemID;
             // Check if the object exists
-            if (manager.environment.objects[i] != null) {
+            if (manager.env.environment[i] != null) {
                 // Check what type of object it is
-                switch ((string)manager.environment.objects[i][0]) {
+                switch ((string)manager.env.environment[i][(int)EnvironmentType]) {
                     case "SYSTEM":
                         // If it is a system, instantiate that system item
                         manager.activeObjects[0] = Instantiate(manager.systemPrefabs[0], Vector3.zero, Quaternion.Euler(0, 0, 0));
                         // Assign the system ID
                         manager.activeObjects[partialID].GetComponent<SystemObject>().ID = i;
                         // Assign the planet count
-                        manager.activeObjects[partialID].GetComponent<SystemObject>().PlanetCount = (int)manager.environment.objects[i][1];
+                        manager.activeObjects[partialID].GetComponent<SystemObject>().PlanetCount = (int)manager.env.environment[i][1];
                         // Log the system's creation
                         Debug.Log("System Insantiated");
                         break;
 
                     case "STAR":
                         // If it is a star, instantiate that star
-                        manager.activeObjects[partialID] = Instantiate(manager.starPrefabs[(int)manager.environment.objects[i][1]], Vector3.zero, Quaternion.Euler(0, 0, 0), manager.activeObjects[0].transform);
+                        manager.activeObjects[partialID] = Instantiate(manager.starPrefabs[(int)manager.env.environment[i][(int)EnvironmentPrefab]], Vector3.zero, Quaternion.Euler(0, 0, 0), manager.activeObjects[0].transform);
                         manager.activeStar = manager.activeObjects[partialID];
                         // Log the star's creation
                         Debug.Log("Star Instantiated");
@@ -64,14 +59,14 @@ public class RandomSystem : MonoBehaviour
 
                     case "PLANET":
                         // If it is a planet, instantiate that planet
-                        manager.activeObjects[partialID] = Instantiate(manager.planetPrefabs[(int)manager.environment.objects[i][1]], Vector3.zero, Quaternion.Euler(0, 0, 0), manager.activeObjects[0].transform);
+                        manager.activeObjects[partialID] = Instantiate(manager.planetPrefabs[(int)manager.env.environment[i][(int)EnvironmentPrefab]], Vector3.zero, Quaternion.Euler(0, 0, 0), manager.activeObjects[0].transform);
                         // Assign the planet ID
                         manager.activeObjects[partialID].GetComponent<Planet>().Id = i;
                         // Assign the planet distance
-                        manager.activeObjects[partialID].GetComponent<Planet>().Distance = (float)manager.environment.objects[i][2];
+                        manager.activeObjects[partialID].GetComponent<Planet>().Distance = (float)manager.env.environment[i][(int)EnvironmentPlanetDistance];
                         // Move the planet to its place
-                        manager.activeObjects[partialID].transform.Rotate(new Vector3(0, (float)manager.environment.objects[i][3], 0));
-                        manager.activeObjects[partialID].transform.Translate(transform.forward * (float)manager.environment.objects[i][2]);
+                        manager.activeObjects[partialID].transform.Rotate(new Vector3(0, Random.Range(0f, 360f), 0));
+                        manager.activeObjects[partialID].transform.Translate(transform.forward * (float)manager.env.environment[i][(int)EnvironmentPlanetDistance]);
                         // Log the planet's creation
                         Debug.Log("Planet " + (partialID) + " Instantiated");
                         break;
@@ -89,14 +84,14 @@ public class RandomSystem : MonoBehaviour
         // Calculate a random planet amount
         int planetCount = Random.Range(1, 8);
         // Set the full ID to a system object
-        manager.environment.objects[fullID] = new object[] { "SYSTEM", planetCount };
+        manager.env.environment[fullID] = new object[] { "SYSTEM", planetCount };
 
         // Increment the full ID
         fullID++;
         // Choose a random star prefab
         int randomStarIndex = Random.Range(0, manager.starPrefabs.Length);
         // Set the full ID to a star object
-        manager.environment.objects[fullID] = new object[] { "STAR", randomStarIndex };
+        manager.env.environment[fullID] = new object[] { "STAR", randomStarIndex };
 
         // Iterate through all the planets
         for (int i = 0; i < planetCount; i++) {
@@ -105,7 +100,7 @@ public class RandomSystem : MonoBehaviour
             // Choose a random planet prefab
             int randomPlanetIndex = Random.Range(0, manager.planetPrefabs.Length);
             // Set the full ID to a planet object
-            manager.environment.objects[fullID] = new object[] { "PLANET", randomPlanetIndex, 0f, 0f };
+            manager.env.environment[fullID] = new object[] { "PLANET", randomPlanetIndex, 0f};
             // Loop until the orbit is confirmed as valid
             bool validDistance = false;
             while (!validDistance) {
@@ -113,21 +108,19 @@ public class RandomSystem : MonoBehaviour
                 validDistance = true;
                 // Generate a new potential orbit distance and assign it to the planet
                 float distanceCandidate = Random.Range(5f, 50f);
-                manager.environment.objects[fullID][2] = distanceCandidate;
+                manager.env.environment[fullID][(int)EnvironmentPlanetDistance] = distanceCandidate;
                 // Iterate through every other created object in the system
                 for (int n = systemID * 50; n < fullID; n++) {
                     // Check if the object is a planet
-                    if ((string)manager.environment.objects[n][0] == "PLANET") {
+                    if ((string)manager.env.environment[n][0] == "PLANET") {
                         // If so, check if its orbit is within 1 unit of the potential orbit
-                        if(distanceCandidate < ((float)manager.environment.objects[n][2] + 1f) && distanceCandidate > ((float)manager.environment.objects[n][2] - 1f)) {
+                        if(distanceCandidate < ((float)manager.env.environment[n][(int)EnvironmentPlanetDistance] + 1f) && distanceCandidate > ((float)manager.env.environment[n][(int)EnvironmentPlanetDistance] - 1f)) {
                             // If so, the potential orbit is declared invalid
                             validDistance = false;
                         }
                     }
                 }
             }
-            // Set a random orbit angle
-            manager.environment.objects[fullID][3] = Random.Range(0f, 359f);
         }
     }
 }

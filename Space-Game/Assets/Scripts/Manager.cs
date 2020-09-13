@@ -1,9 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-// ----------------------------------------- ONE UNITY UNIT = 50 * 10^6 km = 1/3 AU --------------------------------------------------------------------------------
-
+﻿using UnityEngine;
+using SaveData;
 
 public class Manager : MonoBehaviour
 {
@@ -26,8 +22,5 @@ public class Manager : MonoBehaviour
     public GameObject activeStar;
     public GameObject[] activeObjects;
 
-    public EnvironmentData environment;
-
-    public int timestep = 2628000; // Number of in-game seconds that pass every real life second
-
+    public EnvironmentData env;
 }
